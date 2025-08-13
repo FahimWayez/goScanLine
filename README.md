@@ -1,6 +1,5 @@
 ### `README.md`
 
-````md
 # goscanline
 
 Read a **full line** from stdin (including spaces) without ceremony.  
@@ -12,7 +11,7 @@ Typed assignment, cancellable reads, secret input (no echo). Zero deps beyond `x
 
 ```bash
 go get github.com/FahimWayez/goscanline
-````
+```
 
 Go 1.21+ recommended.
 
