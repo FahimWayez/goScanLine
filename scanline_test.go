@@ -71,7 +71,7 @@ func TestScanPrompt_WritesToPromptWriter(t *testing.T) {
 
 // when no newline or no EOF, ScanCtx should return ctx error
 func TestScanCtx_Timeout(t *testing.T) {
-	pr, _ := io.Pipe() 
+	pr, _ := io.Pipe()
 	s := New(pr, nil)
 
 	var v string
