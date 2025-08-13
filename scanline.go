@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"golang.org/x/term"
 )
 
 //errors returned by parsing/usage
@@ -249,4 +251,58 @@ func (s *Scanner) ScanCtx(ctx context.Context, dest any) error{
 		}
 		return assign(r.line, dest)
 	}
+}
+
+
+//reads a password without echo if stdin is a terminal, otherwise basically scan
+func (s *Scanner) ScanSecret(prompt string, dest *string) error{
+	if dest == nil{
+		return fmt.Errorf("%w: nil *string*", ErrUnsupported)
+	}
+	
+	fmt.Fprint(s.w, prompt)
+
+	if f, ok := s.src.(*os.File); ok && term.IsTerminal(int(f.Fd())){
+		b,err := term.ReadPassword(int(f.Fd()))
+
+		fmt.Fprintln(s.w) //newline after hidden input
+		
+		if err != nil{
+			return err
+		}
+
+		*dest = string(b)
+
+		return nil
+	}
+
+	return s.Scan(dest)
+}
+
+func ReadLine()(string, error){
+	return Default.ReadLine()
+}
+
+func Scan(dest any) error{
+	return Default.Scan(dest)
+}
+
+func ScanPrompt(prompt string, dest any) error{
+	return Default.ScanPrompt(prompt, dest)
+}
+
+func ScanCtx(ctx context.Context, dest any) error{
+	return Default.ScanCtx(ctx, dest)
+}
+
+func ScanSecret(prompt string, dest *string) error{
+	return Default.ScanSecret(prompt, dest)
+}
+
+func ScanT[T any]() (T,error){
+	var z T; var v T;
+
+	if err := Scan(&v); err != nil{
+		return z, err
+	}; return v, nil
 }
