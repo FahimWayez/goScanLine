@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -49,4 +50,31 @@ func SetDefaultWriter(w io.Writer){
 		w = os.Stderr
 	}
 	Default.w = w
+}
+
+//until '\n' or end of line it will read one line and trims a single trailing newline
+func (s *Scanner) ReadLine() (string, error){
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	line, err := s.r.ReadString('\n')
+	if errors.Is(err, io.EOF){
+		if len(line) == 0{
+			return "", io.EOF
+		}
+		err = nil
+	}
+	return trimNewLine(line), err
+}
+
+func trimNewLine(s string) string{
+	if strings.HasSuffix(s, "\r\n"){
+		return strings.TrimSuffix(s, "\r\n")
+	}
+
+	if strings.HasSuffix(s, "\n"){
+		return strings.TrimSuffix(s, "\n")
+	}
+
+	return s
 }
