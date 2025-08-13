@@ -9,8 +9,8 @@ Minimal, dependency-free helpers for **line-based input** in Go CLIs.
 - Extras for real CLI UX: **cancellable reads** (`ScanCtx`) and **no-echo secrets** (`ScanSecret`, via `x/term`).
 - Prompts print to **stderr** by default, so **stdout** stays clean for piping.
 
-[![pkg.go.dev](https://pkg.go.dev/badge/github.com/FahimWayez/goscanline.svg)](https://pkg.go.dev/github.com/FahimWayez/goscanline)
-[![Go Report Card](https://goreportcard.com/badge/github.com/FahimWayez/goscanline)](https://goreportcard.com/report/github.com/FahimWayez/goscanline)
+[![Go Reference](https://pkg.go.dev/badge/github.com/FahimWayez/goscanline.svg)](https://pkg.go.dev/github.com/FahimWayez/goscanline)
+[![Go Report Card](https://goreportcard.com/badge/github.com/FahimWayez/goscanline?refresh=1)](https://goreportcard.com/report/github.com/FahimWayez/goscanline)
 
 ---
 
