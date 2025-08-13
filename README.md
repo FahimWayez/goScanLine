@@ -6,6 +6,7 @@ Read a **full line** from stdin (including spaces) without ceremony.
 Typed assignment, cancellable reads, secret input (no echo). Zero deps beyond `x/term`.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/FahimWayez/goscanline.svg)](https://pkg.go.dev/github.com/FahimWayez/goscanline)
+[![Go Report Card](https://goreportcard.com/badge/github.com/FahimWayez/goscanline)](https://goreportcard.com/report/github.com/FahimWayez/goscanline)
 
 ## Install
 
@@ -80,12 +81,12 @@ func (s *Scanner) ScanSecret(prompt string, dest *string) error
 
 MIT © Fahim Wayez
 
-````
+
 
 ---
 
 ### `LICENSE`
-```text
+```bash
 MIT License
 
 Copyright (c) 2025 Fahim Wayez
@@ -107,6 +108,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-````
+```
 
 ---
