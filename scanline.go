@@ -15,7 +15,7 @@ import (
 	"golang.org/x/term"
 )
 
-//errors returned by parsing/usage
+// errors returned by parsing/usage
 var (
 	ErrUnsupported = errors.New("goscanline: unsupported destination type")
 	ErrParse       = errors.New("goscanline: parse error")
@@ -58,7 +58,7 @@ func SetDefaultWriter(w io.Writer) {
 	Default.w = w
 }
 
-//until '\n' or end of line it will read one line and trims a single trailing newline
+// until '\n' or end of line it will read one line and trims a single trailing newline
 func (s *Scanner) ReadLine() (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -228,7 +228,7 @@ func assign(src string, dest any) error {
 	return fmt.Errorf("%w: %T", ErrUnsupported, dest)
 }
 
-//reads a line and assigns it into dest (basically pointer to string/bool/int*/uint*/float* or TextUnmarshaler)
+// reads a line and assigns it into dest (basically pointer to string/bool/int*/uint*/float* or TextUnmarshaler)
 func (s *Scanner) Scan(dest any) error {
 	line, err := s.ReadLine()
 
@@ -239,13 +239,13 @@ func (s *Scanner) Scan(dest any) error {
 	return assign(line, dest)
 }
 
-//writes prompt without newline to the prompt writer, then behaves similar to scan
+// writes prompt without newline to the prompt writer, then behaves similar to scan
 func (s *Scanner) ScanPrompt(prompt string, dest any) error {
 	fmt.Fprint(s.w, prompt)
 	return s.Scan(dest)
 }
 
-//similar to scan, but cancels if ctx is done
+// similar to scan, but cancels if ctx is done
 func (s *Scanner) ScanCtx(ctx context.Context, dest any) error {
 	type res struct {
 		line string
@@ -270,7 +270,7 @@ func (s *Scanner) ScanCtx(ctx context.Context, dest any) error {
 	}
 }
 
-//reads a password without echo if stdin is a terminal, otherwise basically scan
+// reads a password without echo if stdin is a terminal, otherwise basically scan
 func (s *Scanner) ScanSecret(prompt string, dest *string) error {
 	if dest == nil {
 		return fmt.Errorf("%w: nil *string*", ErrUnsupported)
