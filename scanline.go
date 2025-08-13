@@ -2,6 +2,7 @@ package goscanline
 
 import (
 	"bufio"
+	"encoding"
 	"errors"
 	"fmt"
 	"io"
@@ -120,4 +121,105 @@ func parseUint(src string, bitSize int, out any) error{
 	}
 	
 	return nil
+}
+
+
+func assign(src string, dest any) error{
+	switch d := dest.(type){
+	case *string:
+		*d = src
+		return nil
+
+	case *bool:
+		v, err := strconv.ParseBool(strings.TrimSpace(src))
+		if err != nil{
+			return fmt.Errorf("%w: bool: %v", ErrParse, err)
+		}
+		*d = v
+	
+		return nil
+
+	case *int:
+		return parseInt(src, 0, d)
+
+	case *int8:
+		var v int64
+		if err := parseInt(src, 8, &v); err != nil{return err}
+		*d = int8(v); return nil
+
+	case *int16:
+		var v  int64
+		if err := parseInt(src, 16, &v); err != nil{return err}
+		*d = int16(v); return nil
+
+	case *int32:
+		var v int64
+		if err := parseInt(src, 32, &v); err != nil{return err}
+		*d = int32(v); return nil
+
+	case *int64:
+		return parseInt(src, 64, d)
+
+	case *uint:
+		return parseUint(src, 0, d)
+	
+	case *uint8:
+		var v uint64
+		if err := parseUint(src, 8, &v); err != nil { return err }
+		*d = uint8(v); return nil
+
+	case *uint16:
+		var v uint64
+		if err := parseUint(src, 16, &v); err != nil { return err }
+		*d = uint16(v); return nil
+
+	case *uint32:
+		var v uint64
+		if err := parseUint(src, 32, &v); err != nil { return err }
+		*d = uint32(v); return nil
+
+	case *uint64:
+		return parseUint(src, 64, d)
+
+	case *float32:
+		f, err := strconv.ParseFloat(strings.TrimSpace(src), 32)
+		if err != nil{
+			return fmt.Errorf("%w: float32: %v", ErrParse, err)
+		}
+		*d = float32(f); return nil
+		
+	case *float64:
+		f, err := strconv.ParseFloat(strings.TrimSpace(src), 64)
+		if err != nil {
+			return fmt.Errorf("%w: float64: %v", ErrParse, err)
+		}
+		*d = f; return nil
+	}
+
+	if u, ok := dest.(encoding.TextUnmarshaler); ok{
+		if err := u.UnmarshalText([]byte(src)); err != nil{
+			return fmt.Errorf("%w: text: %v", ErrParse, err)
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf("%w: %T", ErrUnsupported, dest)
+}
+
+//reads a line and assigns it into dest (basically pointer to string/bool/int*/uint*/float* or TextUnmarshaler)
+func (s *Scanner) Scan(dest any) error{
+	line, err := s.ReadLine()
+
+	if err != nil{
+		return err
+	}
+
+	return assign(line, dest)
+}
+
+//writes prompt without newline to the prompt writer, then behaves similar to scan
+func (s *Scanner) ScanPrompt(prompt string, dest any) error{
+	fmt.Fprint(s.w, prompt)
+	return s.Scan(dest)
 }
