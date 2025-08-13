@@ -1,20 +1,31 @@
-### `README.md`
+## `README.md`
 
+````md
 # goscanline
 
-Read a **full line** from stdin (including spaces) without ceremony.  
-Typed assignment, cancellable reads, secret input (no echo). Zero deps beyond `x/term`.
+Minimal, dependency-free helpers for **line-based input** in Go CLIs.
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/FahimWayez/goscanline.svg)](https://pkg.go.dev/github.com/FahimWayez/goscanline)
-[![Go Report Card](https://goreportcard.com/badge/github.com/FahimWayez/goscanline)](https://goreportcard.com/report/github.com/FahimWayez/goscanline)
+- Reads a **full line** from stdin (keeps spaces), trims the newline.
+- Assigns into typed destinations: `*string`, `*bool`, `*int*`, `*uint*`, `*float32/64`, or any `encoding.TextUnmarshaler`.
+- Extras for real CLI UX: **cancellable reads** (`ScanCtx`) and **no-echo secrets** (`ScanSecret`, via `x/term`).
+- Prompts print to **stderr** by default, so **stdout** stays clean for piping.
+
+[![pkg.go.dev](https://pkg.go.dev/badge/github.com/FahimWayez/goScanLine.svg)](https://pkg.go.dev/github.com/FahimWayez/goScanLine)
+[![Go Report Card](https://goreportcard.com/badge/github.com/FahimWayez/goScanLine)](https://goreportcard.com/report/github.com/FahimWayez/goScanLine)
+
+> **Note:** Make sure the import path below matches the `module` line in your `go.mod`. If your module path uses lowercase (`goscanline`), use that consistently.
+
+---
 
 ## Install
 
 ```bash
-go get github.com/FahimWayez/goscanline
-```
+go get github.com/FahimWayez/goScanLine
+````
 
 Go 1.21+ recommended.
+
+---
 
 ## Quick start
 
@@ -24,7 +35,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/FahimWayez/goscanline"
+	"github.com/FahimWayez/goScanLine"
 )
 
 func main() {
@@ -36,33 +47,31 @@ func main() {
 }
 ```
 
-## Features
+---
 
-* Full-line read with precise `\n`/`\r\n` trimming
-* Typed assignment into:
+## API overview
 
-  * `*string`, `*bool`
-  * `*int`, `*int8/16/32/64`
-  * `*uint`, `*uint8/16/32/64`
-  * `*float32`, `*float64`
-* **Cancellable reads**: `ScanCtx(ctx, &v)`
-* **Secret input** (no echo): `ScanSecret("Password: ", &pwd)` (uses `x/term`)
-* **Prompts to stderr** by default (keeps stdout clean for piping)
-* Supports custom types via `encoding.TextUnmarshaler`
-* Package-level helpers and configurable `Scanner`
-
-## API (high level)
+### Package-level helpers
 
 ```go
-// Package-level
+func ReadLine() (string, error)
 func Scan(dest any) error
 func ScanPrompt(prompt string, dest any) error
 func ScanCtx(ctx context.Context, dest any) error
 func ScanSecret(prompt string, dest *string) error
 func ScanT[T any]() (T, error)
+```
 
-// Scanner for custom streams (tests/pipes)
-type Scanner struct { /* ... */ }
+* `dest` must be a **pointer** to a supported type.
+* `ScanPrompt` writes to **stderr** (keeps stdout for pipelines).
+* `ScanCtx` cancels a blocking read (e.g., on timeout).
+* `ScanSecret` reads without echo when stdin is a terminal; otherwise falls back to normal `Scan`.
+
+### Scanner (custom streams)
+
+```go
+type Scanner struct{ /* ... */ }
+
 func New(r io.Reader, w io.Writer) *Scanner
 func (s *Scanner) ReadLine() (string, error)
 func (s *Scanner) Scan(dest any) error
@@ -71,43 +80,93 @@ func (s *Scanner) ScanCtx(ctx context.Context, dest any) error
 func (s *Scanner) ScanSecret(prompt string, dest *string) error
 ```
 
+Use `Scanner` when you want to inject your own reader/writer (tests, pipes, in-memory buffers).
+
+---
+
+## Examples
+
+**Parse a full-line string**
+
+```go
+var name string
+_ = goscanline.ScanPrompt("Name: ", &name) // "Ada Lovelace"
+```
+
+**Parse a number from the line**
+
+```go
+var age int
+if err := goscanline.ScanPrompt("Age: ", &age); err != nil {
+    // handle invalid integer
+}
+```
+
+**Cancellable input**
+
+```go
+ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+defer cancel()
+var v string
+if err := goscanline.ScanCtx(ctx, &v); err != nil {
+    // context deadline exceeded (e.g., user never hit Enter)
+}
+```
+
+**Secret input (no echo)**
+
+```go
+var pwd string
+if err := goscanline.ScanSecret("Password: ", &pwd); err != nil { /* ... */ }
+```
+
+**Custom reader/writer (tests)**
+
+```go
+in := strings.NewReader("hello\n")
+var out bytes.Buffer
+s := goscanline.New(in, &out)
+var v string
+_ = s.ScanPrompt("Enter: ", &v) // prompt written to out
+```
+
+---
+
 ## Notes
 
-* Global `Default` scanner serializes calls; for concurrent interactive prompts, create separate `Scanner`s.
-* Prompts go to **stderr**; print your program’s results to **stdout** for pipelines.
-* Errors: parse failures wrap `ErrParse`; unsupported destinations return `ErrUnsupported`.
+* The global `Default` scanner serializes calls. For concurrent interactive prompts, create separate `Scanner` instances.
+* Errors: parse failures wrap `ErrParse`; unsupported destination types return `ErrUnsupported`.
+* Prompts are sent to **stderr**; print results to **stdout** to keep pipelines predictable.
+
+---
+
+## Versioning
+
+Semantic versioning. Tag releases so users can pin versions.
+
+```bash
+git tag v0.2.0
+git push --tags
+```
+
+---
+
+## Contributing
+
+Issues and PRs welcome. Please include tests, keep dependencies minimal, and maintain backward compatibility.
+
+Run checks locally:
+
+```bash
+gofmt -s -l .
+go vet ./...
+go test ./...    # add -race for data races
+```
+
+---
 
 ## License
 
 MIT © Fahim Wayez
 
-
-
----
-
-### `LICENSE`
-```bash
-MIT License
-
-Copyright (c) 2025 Fahim Wayez
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-```
-
----
+````
