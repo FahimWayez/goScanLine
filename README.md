@@ -1,6 +1,5 @@
 ## `README.md`
 
-````md
 # goscanline
 
 Minimal, dependency-free helpers for **line-based input** in Go CLIs.
@@ -13,15 +12,13 @@ Minimal, dependency-free helpers for **line-based input** in Go CLIs.
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/FahimWayez/goScanLine.svg)](https://pkg.go.dev/github.com/FahimWayez/goScanLine)
 [![Go Report Card](https://goreportcard.com/badge/github.com/FahimWayez/goScanLine)](https://goreportcard.com/report/github.com/FahimWayez/goScanLine)
 
-> **Note:** Make sure the import path below matches the `module` line in your `go.mod`. If your module path uses lowercase (`goscanline`), use that consistently.
-
 ---
 
 ## Install
 
 ```bash
 go get github.com/FahimWayez/goScanLine
-````
+```
 
 Go 1.21+ recommended.
 
