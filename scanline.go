@@ -2,6 +2,7 @@ package goscanline
 
 import (
 	"bufio"
+	"context"
 	"encoding"
 	"errors"
 	"fmt"
@@ -222,4 +223,30 @@ func (s *Scanner) Scan(dest any) error{
 func (s *Scanner) ScanPrompt(prompt string, dest any) error{
 	fmt.Fprint(s.w, prompt)
 	return s.Scan(dest)
+}
+
+
+//similar to scan, but cancels if ctx is done
+func (s *Scanner) ScanCtx(ctx context.Context, dest any) error{
+	type res struct{
+		line string
+		err error
+	}
+
+	ch := make (chan res, 1)
+	go func(){
+		line, err := s.ReadLine()
+		ch <- res{line, err}
+	}()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+
+	case r:= <-ch:
+		if r.err != nil{
+			return r.err
+		}
+		return assign(r.line, dest)
+	}
 }
