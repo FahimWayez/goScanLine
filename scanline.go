@@ -3,8 +3,10 @@ package goscanline
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -77,4 +79,45 @@ func trimNewLine(s string) string{
 	}
 
 	return s
+}
+
+
+func parseInt(src string, bitSize int, out any) error{
+	v, err := strconv.ParseInt(strings.TrimSpace(src), 10, bitSize)
+
+	if err != nil{
+		return fmt.Errorf("%w: int: %v", ErrParse, err)
+	}
+	switch p := out.(type){
+	case *int64:
+		*p = v
+
+	case *int:
+		*p = int(v)
+			
+	default:
+		return fmt.Errorf("%w: internal int out type %T", ErrUnsupported, out)
+	}
+	
+	return nil
+}
+
+func parseUint(src string, bitSize int, out any) error{
+	v, err := strconv.ParseUint(strings.TrimSpace(src), 10, bitSize)
+
+	if err != nil{
+		return fmt.Errorf("%w: uint: %v", ErrParse, err)
+	}
+
+	switch p := out.(type){
+	case *uint64:
+		*p = v
+
+	case *uint:
+		*p = uint(v)	
+	default:
+		return fmt.Errorf("%w: internal uint out type %T", ErrUnsupported, out)
+	}
+	
+	return nil
 }
