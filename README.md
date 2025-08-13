@@ -17,7 +17,7 @@ Minimal, dependency-free helpers for **line-based input** in Go CLIs.
 ## Install
 
 ```bash
-go get github.com/FahimWayez/goScanLine
+go get github.com/FahimWayez/goscanline
 ```
 
 Go 1.21+ recommended.
