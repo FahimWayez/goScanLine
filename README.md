@@ -87,7 +87,7 @@ Use `Scanner` when you want to inject your own reader/writer (tests, pipes, in-m
 
 ```go
 var name string
-_ = goscanline.ScanPrompt("Name: ", &name) // "Ada Lovelace"
+_ = goscanline.ScanPrompt("Name: ", &name) // "Fahim Wayez"
 ```
 
 **Parse a number from the line**
@@ -137,17 +137,6 @@ _ = s.ScanPrompt("Enter: ", &v) // prompt written to out
 
 ---
 
-## Versioning
-
-Semantic versioning. Tag releases so users can pin versions.
-
-```bash
-git tag v0.2.0
-git push --tags
-```
-
----
-
 ## Contributing
 
 Issues and PRs welcome. Please include tests, keep dependencies minimal, and maintain backward compatibility.
@@ -157,7 +146,7 @@ Run checks locally:
 ```bash
 gofmt -s -l .
 go vet ./...
-go test ./...    # add -race for data races
+go test ./...  
 ```
 
 ---
@@ -165,5 +154,3 @@ go test ./...    # add -race for data races
 ## License
 
 MIT © Fahim Wayez
-
-````
